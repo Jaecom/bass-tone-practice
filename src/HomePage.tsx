@@ -19,7 +19,7 @@ const HomePage = () => {
 	});
 	const [intervalTime, setIntervalTime] = useState(DEFAULT_INTERVAL * 1000);
 	const [isStart, setIsStart] = useState(false);
-	const animationRef = useRef<any>(null);
+	const animationRef = useRef<gsap.core.Tween | null>(null);
 	const [selectedFilter, setSelectedFilter] = useState("ALL");
 
 	const onIntervalChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +83,9 @@ const HomePage = () => {
 		animationRef.current = animation;
 
 		return () => {
-			animationRef.current.kill();
+			if (animationRef.current) {
+				animationRef.current.kill();
+			}
 		};
 	}, [currentNote]);
 
@@ -95,6 +97,7 @@ const HomePage = () => {
 						<div className="w-full flex mb-2 justify-between">
 							{FILTERS.map((filter) => (
 								<div
+									key={filter}
 									className={`w-[20%] h-[40px] flex items-center justify-center ${
 										selectedFilter == filter ? "bg-[#4a4a4a] text-white" : "bg-[#eeeeee]"
 									} cursor-pointer`}
