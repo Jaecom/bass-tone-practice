@@ -55,7 +55,7 @@ const HomePage = () => {
 
 		const setNewNote = () => {
 			setCurrentNoteData((currentNoteData) => {
-				const filteredData = data.filter((note) => note.note != currentNoteData.note);
+				const filteredData = data.filter((note) => note.note !== currentNoteData.note);
 				const newNote = filteredData[Math.floor(Math.random() * filteredData.length)];
 
 				if (!newNote) return { note: "", string: "" };
@@ -105,7 +105,7 @@ const HomePage = () => {
 								<div
 									key={filter}
 									className={`w-[20%] h-[40px] flex items-center justify-center ${
-										selectedFilter == filter ? "bg-[#4a4a4a] text-white" : "bg-[#eeeeee]"
+										selectedFilter == filter ? "bg-[#707070] text-white" : "bg-[#eeeeee]"
 									} cursor-pointer`}
 									onClick={() => {
 										setSelectedFilter(filter);
@@ -115,24 +115,30 @@ const HomePage = () => {
 								</div>
 							))}
 						</div>
-						<p className="h-[300px] w-[300px] flex items-center justify-center text-[120px] bg-[#dbdbdb]">
-							{currentNoteData.note}
-						</p>
+						<div className="h-[300px] flex items-center justify-center w-[300px] bg-[#dbdbdb]">
+							<div className="flex flex-col text-center">
+								{selectedFilter === "ALL" && currentNoteData.note !== "" && (
+									<p className="mb-[-30px]">
+										<b>{currentNoteData.string} String</b>
+									</p>
+								)}
+								<p className="text-[120px]">{currentNoteData.note}</p>
+							</div>
+						</div>
+
 						<div className="w-full">
 							<div className="progress h-[5px] bg-black"></div>
 						</div>
-						<button className="py-1 px-6 mt-2 bg-black text-white rounded-full" onClick={onStartPressed}>
-							{!isPlaying ? "Start" : "Stop"}
-						</button>
-					</div>
-					<div className="flex flex-col">
-						<p>
-							<b>{currentNoteData.string} String</b>
-						</p>
-						<p>
-							<span>Inverval: </span>
-							<input type="number" min="1" max="10" defaultValue={DEFAULT_INTERVAL} onChange={onIntervalChange}></input>
-						</p>
+
+						<div className="flex items-center mt-6 gap-x-[12px]">
+							<button className={`py-1 px-6 rounded-full text-white bg-black`} onClick={onStartPressed}>
+								{!isPlaying ? "Start" : "Stop"}
+							</button>
+							<p className="rounded-full border-black border-solid border-[1px] py-1 pl-7 pr-2">
+								<span>Interval: </span>
+								<input type="number" min="1" max="10" defaultValue={DEFAULT_INTERVAL} onChange={onIntervalChange} />
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>
