@@ -7,18 +7,18 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
-const DEFAULT_INTERVAL = 10;
+const DEFAULT_INTERVAL = 4;
 const FILTERS = ["E", "A", "D", "G", "ALL"];
 
 const HomePage = () => {
-	const [stringData, setStringData] = useState(notes.notes);
+	const [data, setData] = useState(notes.notes);
 
-	const [currentNote, setCurrentNote] = useState({
+	const [currentNoteData, setCurrentNoteData] = useState({
 		note: "",
 		string: "",
 	});
 	const [intervalTime, setIntervalTime] = useState(DEFAULT_INTERVAL * 1000);
-	const [isStart, setIsStart] = useState(false);
+	const [isPlaying, setIsPlaying] = useState(false);
 	const animationRef = useRef<gsap.core.Tween | null>(null);
 	const [selectedFilter, setSelectedFilter] = useState("ALL");
 
@@ -28,14 +28,14 @@ const HomePage = () => {
 	};
 
 	const onStartPressed = () => {
-		if (animationRef.current && !isStart) {
+		if (animationRef.current && !isPlaying) {
 			animationRef.current.play();
-		} else if (animationRef.current && isStart) {
+		} else if (animationRef.current && isPlaying) {
 			animationRef.current.pause();
 			animationRef.current.kill();
 		}
 
-		setIsStart((isStart) => !isStart);
+		setIsPlaying((isPlaying) => !isPlaying);
 	};
 
 	useEffect(() => {
@@ -47,28 +47,34 @@ const HomePage = () => {
 			}
 		});
 
-		setStringData(data);
+		setData(data);
 	}, [selectedFilter]);
 
 	useEffect(() => {
-		if (!isStart) return;
+		if (!isPlaying) return;
 
-		const getRandomNote = () => {
-			const { length } = stringData;
-			return stringData[Math.floor(Math.random() * length)];
+		const setNewNote = () => {
+			setCurrentNoteData((currentNoteData) => {
+				const filteredData = data.filter((note) => note.note != currentNoteData.note);
+				const newNote = filteredData[Math.floor(Math.random() * filteredData.length)];
+
+				if (!newNote) return { note: "", string: "" };
+
+				return newNote;
+			});
 		};
 
-		setCurrentNote(getRandomNote());
+		setNewNote();
 
 		const timer = setInterval(() => {
-			setCurrentNote(getRandomNote());
+			setNewNote();
 		}, intervalTime);
 
 		return () => clearInterval(timer);
-	}, [intervalTime, isStart, stringData]);
+	}, [intervalTime, isPlaying, data]);
 
 	useGSAP(() => {
-		if (currentNote.note == "") return;
+		if (currentNoteData.note == "") return;
 
 		if (animationRef.current) {
 			animationRef.current.kill();
@@ -87,7 +93,7 @@ const HomePage = () => {
 				animationRef.current.kill();
 			}
 		};
-	}, [currentNote]);
+	}, [currentNoteData]);
 
 	return (
 		<div className="flex flex-col items-center justify-center min-w-screen min-h-[100vh] ">
@@ -110,18 +116,18 @@ const HomePage = () => {
 							))}
 						</div>
 						<p className="h-[300px] w-[300px] flex items-center justify-center text-[120px] bg-[#dbdbdb]">
-							{currentNote.note}
+							{currentNoteData.note}
 						</p>
 						<div className="w-full">
 							<div className="progress h-[5px] bg-black"></div>
 						</div>
 						<button className="py-1 px-6 mt-2 bg-black text-white rounded-full" onClick={onStartPressed}>
-							{!isStart ? "Start" : "Stop"}
+							{!isPlaying ? "Start" : "Stop"}
 						</button>
 					</div>
 					<div className="flex flex-col">
 						<p>
-							<b>{currentNote.string} String</b>
+							<b>{currentNoteData.string} String</b>
 						</p>
 						<p>
 							<span>Inverval: </span>
