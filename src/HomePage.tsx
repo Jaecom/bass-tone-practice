@@ -8,7 +8,7 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
 const DEFAULT_INTERVAL = 4;
-const FILTERS = ["E", "A", "D", "G", "ALL"];
+const FILTERS = ["E", "A", "D", "G"];
 
 const HomePage = () => {
 	const [data, setData] = useState(notes.notes);
@@ -20,7 +20,7 @@ const HomePage = () => {
 	const [intervalTime, setIntervalTime] = useState(DEFAULT_INTERVAL * 1000);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const animationRef = useRef<gsap.core.Tween | null>(null);
-	const [selectedFilter, setSelectedFilter] = useState("ALL");
+	const [selectedFilter, setSelectedFilter] = useState(["E"]);
 
 	const onIntervalChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const value = parseInt(e.target.value, 10);
@@ -40,11 +40,7 @@ const HomePage = () => {
 
 	useEffect(() => {
 		const data = notes.notes.filter((value) => {
-			if (selectedFilter === "ALL") {
-				return true;
-			} else {
-				return value.string === selectedFilter;
-			}
+			return selectedFilter.includes(value.string);
 		});
 
 		setData(data);
@@ -104,11 +100,14 @@ const HomePage = () => {
 							{FILTERS.map((filter) => (
 								<div
 									key={filter}
-									className={`w-[20%] h-[40px] flex items-center justify-center ${
-										selectedFilter == filter ? "bg-[#707070] text-white" : "bg-[#eeeeee]"
+									className={`w-[25%] h-[40px] flex items-center justify-center ${
+										selectedFilter.includes(filter) ? "bg-[#707070] text-white" : "bg-[#eeeeee]"
 									} cursor-pointer`}
 									onClick={() => {
-										setSelectedFilter(filter);
+										setSelectedFilter((currentFilters) => {
+											if (selectedFilter.includes(filter)) return currentFilters.filter((a) => a !== filter);
+											return currentFilters.concat(filter);
+										});
 									}}
 								>
 									{filter}
@@ -117,7 +116,7 @@ const HomePage = () => {
 						</div>
 						<div className="h-[300px] flex items-center justify-center w-[300px] bg-[#dbdbdb]">
 							<div className="flex flex-col text-center">
-								{selectedFilter === "ALL" && currentNoteData.note !== "" && (
+								{currentNoteData.note !== "" && (
 									<p className="mb-[-30px]">
 										<b>{currentNoteData.string} String</b>
 									</p>
